@@ -139,6 +139,9 @@
       <!-- Tracking camera -->
       <camera name="tracking_cam" mode="trackcom"
               pos="0 -0.8 0.4" xyaxes="1 0 0 0 0.5 1"/>
+      <!-- Add inside base_link body -->
+      <camera name="front_cam" pos="0.5 0 0.2" xyaxes="-1 0 0 0 0 1"/>
+      <camera name="side_cam"  pos="0 0.5 0.2" xyaxes="0 1 0 0 0 1"/>
 
       <!-- ========================================================= -->
       <!-- RIGHT FRONT LEG (rf)                                       -->
