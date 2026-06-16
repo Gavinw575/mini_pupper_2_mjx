@@ -1,0 +1,294 @@
+<mujoco model="mini_pupper_2">
+
+  <!-- ============================================================ -->
+  <!-- COMPILER                                                      -->
+  <!-- ============================================================ -->
+  <compiler angle="radian" meshdir="meshes" autolimits="true"/>
+
+  <!-- ============================================================ -->
+  <!-- OPTIONS                                                       -->
+  <!-- MJX-compatible: pyramidal friction, Newton solver            -->
+  <!-- timestep=0.004 matches Colab physics_dt                      -->
+  <!-- ============================================================ -->
+  <option timestep="0.004" iterations="2" ls_iterations="6"
+          solver="Newton" cone="pyramidal" jacobian="dense"/>
+
+  <!-- ============================================================ -->
+  <!-- ASSETS                                                        -->
+  <!-- ============================================================ -->
+  <asset>
+    <!-- Structural leg meshes -->
+    <mesh name="base_link"  file="base_link.stl"/>
+    <mesh name="lf1"        file="lf1.stl"/>
+    <mesh name="lf2"        file="lf2.stl"/>
+    <mesh name="lf3"        file="lf3.stl"/>
+    <mesh name="rf1"        file="rf1.stl"/>
+    <mesh name="rf2"        file="rf2.stl"/>
+    <mesh name="rf3"        file="rf3.stl"/>
+    <mesh name="lb1"        file="lb1.stl"/>
+    <mesh name="lb2"        file="lb2.stl"/>
+    <mesh name="lb3"        file="lb3.stl"/>
+    <mesh name="rb1"        file="rb1.stl"/>
+    <mesh name="rb2"        file="rb2.stl"/>
+    <mesh name="rb3"        file="rb3.stl"/>
+    <mesh name="lffoot"     file="lffoot.stl"/>
+    <mesh name="rffoot"     file="rffoot.stl"/>
+    <mesh name="lbfoot"     file="lbfoot.stl"/>
+    <mesh name="rbfoot"     file="rbfoot.stl"/>
+    <!-- Visual-only body meshes -->
+    <mesh name="Body_front" file="Body_front.stl"/>
+    <mesh name="Board_PCB"  file="Board_PCB.stl"/>
+    <mesh name="Shell_Side" file="Shell_Side.stl"/>
+    <mesh name="lpf1"       file="lpf1.stl"/>
+    <mesh name="lpf2"       file="lpf2.stl"/>
+    <mesh name="lpb1"       file="lpb1.stl"/>
+    <mesh name="lpb2"       file="lpb2.stl"/>
+    <mesh name="rpf1"       file="rpf1.stl"/>
+    <mesh name="rpf2"       file="rpf2.stl"/>
+    <mesh name="rpb1"       file="rpb1.stl"/>
+    <mesh name="rpb2"       file="rpb2.stl"/>
+
+    <!-- Floor texture -->
+    <texture name="grid" type="2d" builtin="checker"
+             rgb1="0.3 0.3 0.3" rgb2="0.4 0.4 0.4" width="512" height="512"/>
+    <material name="grid" texture="grid" texrepeat="4 4" reflectance="0.2"/>
+  </asset>
+
+  <!-- ============================================================ -->
+  <!-- DEFAULTS                                                      -->
+  <!-- kp=5.5, kd=0.25 matches Colab training_config defaults       -->
+  <!-- ============================================================ -->
+  <default>
+    <!-- All joints: position-controlled servos -->
+    <default class="leg_joint">
+      <joint limited="true" range="-3.14 3.14"
+             damping="0.25" armature="0.01" frictionloss="0.0"/>
+    </default>
+
+    <!-- Foot contact spheres -->
+    <default class="foot_geom">
+      <geom type="sphere" size="0.013"
+            condim="6" conaffinity="1" contype="1" group="0"
+            friction="1.5 0.005 0.0001"
+            solref="0.02 1" solimp="0.9 0.95 0.001"/>
+    </default>
+
+    <!-- Collision capsules for leg links -->
+    <default class="collision_geom">
+      <geom condim="3" conaffinity="1" contype="1" group="0"
+            rgba="0.3 0.3 0.3 0.3"
+            friction="0.8 0.005 0.0001"/>
+    </default>
+
+    <!-- Visual meshes: no collision -->
+    <default class="visual_geom">
+      <geom conaffinity="0" contype="0" group="1"/>
+    </default>
+
+    <!-- Actuators: position control, kp=5.5 -->
+    <default class="servo">
+      <position kp="5.5" ctrlrange="-3.14 3.14" forcerange="-3.0 3.0"/>
+    </default>
+  </default>
+
+  <!-- ============================================================ -->
+  <!-- WORLDBODY                                                     -->
+  <!-- ============================================================ -->
+  <worldbody>
+
+    <light name="spotlight" mode="targetbodycom" target="base_link"
+           diffuse="0.8 0.8 0.8" specular="0.2 0.2 0.2"
+           pos="0 -2 4" cutoff="60"/>
+
+    <!-- Floor -->
+    <geom name="floor" type="plane" size="10 10 0.1"
+          material="grid" condim="3" conaffinity="1" contype="1"
+          friction="1.5 0.005 0.0001"/>
+
+    <!-- ============================================================ -->
+    <!-- BASE / TORSO                                                  -->
+    <!-- Spawned 0.14m above floor. Foot hangs ~0.106+0.013=0.119m   -->
+    <!-- below base_link origin, so 0.14m gives ~2cm ground clearance -->
+    <!-- ============================================================ -->
+    <body name="base_link" pos="0 0 0.14" quat="1 0 0 0">
+      <freejoint name="root"/>
+
+      <site name="imu" size="0.01" pos="0 0 0"/>
+
+      <!-- Torso collision: box approximation of body -->
+      <geom name="base_collision" class="collision_geom"
+            type="box" size="0.065 0.030 0.015"
+            pos="-0.008 0 0"/>
+
+      <!-- Visual meshes -->
+      <geom name="base_visual"       class="visual_geom" type="mesh" mesh="base_link"  rgba="0.15 0.15 0.15 1"/>
+      <geom name="body_front_visual" class="visual_geom" type="mesh" mesh="Body_front" pos="0.089299 -5e-06 -0.015543" rgba="1.0 0.85 0.0 1"/>
+      <geom name="board_pcb_visual"  class="visual_geom" type="mesh" mesh="Board_PCB"  pos="-0.087701 -0.023505 0.026457" rgba="0.15 0.15 0.15 1"/>
+      <geom name="shell_side_visual" class="visual_geom" type="mesh" mesh="Shell_Side" pos="-0.002701 -0.030005 -0.016293" rgba="1.0 0.85 0.0 1"/>
+
+      <!-- Tracking camera -->
+      <camera name="tracking_cam" mode="trackcom"
+              pos="0 -0.8 0.4" xyaxes="1 0 0 0 0.5 1"/>
+
+      <!-- ========================================================= -->
+      <!-- RIGHT FRONT LEG (rf)                                       -->
+      <!-- Abduction joint at xyz="0.05 -0.0235 0.0" axis=x          -->
+      <!-- ========================================================= -->
+      <body name="rf1" pos="0.05 -0.0235 0.0">
+        <joint name="base_rf1" class="leg_joint" axis="1 0 0"/>
+        <geom name="rf1_visual"    class="visual_geom"    type="mesh"    mesh="rf1"  rgba="0.15 0.15 0.15 1"/>
+        <geom name="rf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 -0.002 0"/>
+
+        <!-- Hip joint: xyz="-4e-05 -0.0197 0" axis=y -->
+        <body name="rf2" pos="-4e-05 -0.0197 0.0">
+          <joint name="rf1_rf2" class="leg_joint" axis="0 1 0"/>
+          <geom name="rf2_visual"    class="visual_geom"    type="mesh"    mesh="rf2"  rgba="0.15 0.15 0.15 1"/>
+          <geom name="rf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 -0.005 -0.05"/>
+
+          <!-- Knee joint: xyz="0 -0.00475 -0.05" axis=y -->
+          <body name="rf3" pos="0.0 -0.00475 -0.05">
+            <joint name="rf2_rf3" class="leg_joint" axis="0 1 0"/>
+            <geom name="rf3_visual"    class="visual_geom"    type="mesh"    mesh="rf3"  rgba="0.15 0.15 0.15 1"/>
+            <geom name="rf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
+
+            <!-- Foot: xyz="0 0 -0.056" -->
+            <body name="rffoot" pos="0.0 0.0 -0.056">
+              <geom name="rffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <geom name="rffoot_visual" class="visual_geom" type="mesh" mesh="rffoot" rgba="0.1 0.1 0.1 1"/>
+              <site name="rffoot_site"   size="0.01" pos="0 0 0"/>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- ========================================================= -->
+      <!-- LEFT FRONT LEG (lf)                                        -->
+      <!-- Abduction joint at xyz="0.05 0.0235 0.0" axis=x           -->
+      <!-- ========================================================= -->
+      <body name="lf1" pos="0.05 0.0235 0.0">
+        <joint name="base_lf1" class="leg_joint" axis="1 0 0"/>
+        <geom name="lf1_visual"    class="visual_geom"    type="mesh"    mesh="lf1"  rgba="0.15 0.15 0.15 1"/>
+        <geom name="lf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 0.002 0"/>
+
+        <!-- Hip joint: xyz="-4e-05 0.0197 0" axis=y -->
+        <body name="lf2" pos="-4e-05 0.0197 0.0">
+          <joint name="lf1_lf2" class="leg_joint" axis="0 1 0"/>
+          <geom name="lf2_visual"    class="visual_geom"    type="mesh"    mesh="lf2"  rgba="0.15 0.15 0.15 1"/>
+          <geom name="lf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 0.005 -0.05"/>
+
+          <!-- Knee joint: xyz="0 0.00475 -0.05" axis=y -->
+          <body name="lf3" pos="0.0 0.00475 -0.05">
+            <joint name="lf2_lf3" class="leg_joint" axis="0 1 0"/>
+            <geom name="lf3_visual"    class="visual_geom"    type="mesh"    mesh="lf3"  rgba="0.15 0.15 0.15 1"/>
+            <geom name="lf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
+
+            <!-- Foot: xyz="0 0 -0.056" -->
+            <body name="lffoot" pos="0.0 0.0 -0.056">
+              <geom name="lffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <geom name="lffoot_visual" class="visual_geom" type="mesh" mesh="lffoot" rgba="0.1 0.1 0.1 1"/>
+              <site name="lffoot_site"   size="0.01" pos="0 0 0"/>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- ========================================================= -->
+      <!-- RIGHT BACK LEG (rb)                                        -->
+      <!-- Abduction joint at xyz="-0.066 -0.0235 0.0" axis=x        -->
+      <!-- ========================================================= -->
+      <body name="rb1" pos="-0.066 -0.0235 0.0">
+        <joint name="base_rb1" class="leg_joint" axis="1 0 0"/>
+        <geom name="rb1_visual"    class="visual_geom"    type="mesh"    mesh="rb1"  rgba="0.15 0.15 0.15 1"/>
+        <geom name="rb1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  -0.04 -0.002 0"/>
+
+        <!-- Hip joint: xyz="-4e-05 -0.0197 0" axis=y -->
+        <body name="rb2" pos="-4e-05 -0.0197 0.0">
+          <joint name="rb1_rb2" class="leg_joint" axis="0 1 0"/>
+          <geom name="rb2_visual"    class="visual_geom"    type="mesh"    mesh="rb2"  rgba="0.15 0.15 0.15 1"/>
+          <geom name="rb2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 -0.005 -0.05"/>
+
+          <!-- Knee joint: xyz="0 -0.00475 -0.05" axis=y -->
+          <body name="rb3" pos="0.0 -0.00475 -0.05">
+            <joint name="rb2_rb3" class="leg_joint" axis="0 1 0"/>
+            <geom name="rb3_visual"    class="visual_geom"    type="mesh"    mesh="rb3"  rgba="0.15 0.15 0.15 1"/>
+            <geom name="rb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
+
+            <!-- Foot: xyz="0 0 -0.056" -->
+            <body name="rbfoot" pos="0.0 0.0 -0.056">
+              <geom name="rbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <geom name="rbfoot_visual" class="visual_geom" type="mesh" mesh="rbfoot" rgba="0.1 0.1 0.1 1"/>
+              <site name="rbfoot_site"   size="0.01" pos="0 0 0"/>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <!-- ========================================================= -->
+      <!-- LEFT BACK LEG (lb)                                         -->
+      <!-- Abduction joint at xyz="-0.066 0.0235 0.0" axis=x         -->
+      <!-- ========================================================= -->
+      <body name="lb1" pos="-0.066 0.0235 0.0">
+        <joint name="base_lb1" class="leg_joint" axis="1 0 0"/>
+        <geom name="lb1_visual"    class="visual_geom"    type="mesh"    mesh="lb1"  rgba="0.15 0.15 0.15 1"/>
+        <geom name="lb1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  -0.04 0.002 0"/>
+
+        <!-- Hip joint: xyz="-4e-05 0.0197 0" axis=y -->
+        <body name="lb2" pos="-4e-05 0.0197 0.0">
+          <joint name="lb1_lb2" class="leg_joint" axis="0 1 0"/>
+          <geom name="lb2_visual"    class="visual_geom"    type="mesh"    mesh="lb2"  rgba="0.15 0.15 0.15 1"/>
+          <geom name="lb2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 0.005 -0.05"/>
+
+          <!-- Knee joint: xyz="0 0.00475 -0.05" axis=y -->
+          <body name="lb3" pos="0.0 0.00475 -0.05">
+            <joint name="lb2_lb3" class="leg_joint" axis="0 1 0"/>
+            <geom name="lb3_visual"    class="visual_geom"    type="mesh"    mesh="lb3"  rgba="0.15 0.15 0.15 1"/>
+            <geom name="lb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
+
+            <!-- Foot: xyz="0 0 -0.056" -->
+            <body name="lbfoot" pos="0.0 0.0 -0.056">
+              <geom name="lbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <geom name="lbfoot_visual" class="visual_geom" type="mesh" mesh="lbfoot" rgba="0.1 0.1 0.1 1"/>
+              <site name="lbfoot_site"   size="0.01" pos="0 0 0"/>
+            </body>
+          </body>
+        </body>
+      </body>
+
+    </body><!-- end base_link -->
+  </worldbody>
+
+  <!-- ============================================================ -->
+  <!-- ACTUATORS                                                     -->
+  <!-- Order: RF, LF, RB, LB — each: abduction, hip, knee          -->
+  <!-- Must match default_pose order in Colab                       -->
+  <!-- ============================================================ -->
+  <actuator>
+    <!-- Right Front -->
+    <position name="act_base_rf1" class="servo" joint="base_rf1"/>
+    <position name="act_rf1_rf2"  class="servo" joint="rf1_rf2"/>
+    <position name="act_rf2_rf3"  class="servo" joint="rf2_rf3"/>
+    <!-- Left Front -->
+    <position name="act_base_lf1" class="servo" joint="base_lf1"/>
+    <position name="act_lf1_lf2"  class="servo" joint="lf1_lf2"/>
+    <position name="act_lf2_lf3"  class="servo" joint="lf2_lf3"/>
+    <!-- Right Back -->
+    <position name="act_base_rb1" class="servo" joint="base_rb1"/>
+    <position name="act_rb1_rb2"  class="servo" joint="rb1_rb2"/>
+    <position name="act_rb2_rb3"  class="servo" joint="rb2_rb3"/>
+    <!-- Left Back -->
+    <position name="act_base_lb1" class="servo" joint="base_lb1"/>
+    <position name="act_lb1_lb2"  class="servo" joint="lb1_lb2"/>
+    <position name="act_lb2_lb3"  class="servo" joint="lb2_lb3"/>
+  </actuator>
+
+  <!-- ============================================================ -->
+  <!-- SENSORS                                                       -->
+  <!-- IMU at body origin                                            -->
+  <!-- ============================================================ -->
+  <sensor>
+    <gyro        name="gyro"        site="imu"/>
+    <accelerometer name="accelerometer" site="imu"/>
+    <framequat   name="body_quat"   objtype="site" objname="imu"/>
+  </sensor>
+
+</mujoco>
