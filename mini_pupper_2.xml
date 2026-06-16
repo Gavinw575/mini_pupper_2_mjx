@@ -132,9 +132,9 @@
 
       <!-- Visual meshes -->
       <geom name="base_visual"       class="visual_geom" type="mesh" mesh="base_link"  rgba="0.15 0.15 0.15 1"/>
-      <geom name="body_front_visual" class="visual_geom" type="mesh" mesh="Body_front" pos="0.089299 -5e-06 -0.015543" rgba="1.0 0.85 0.0 1"/>
-      <geom name="board_pcb_visual"  class="visual_geom" type="mesh" mesh="Board_PCB"  pos="-0.087701 -0.023505 0.026457" rgba="0.15 0.15 0.15 1"/>
-      <geom name="shell_side_visual" class="visual_geom" type="mesh" mesh="Shell_Side" pos="-0.002701 -0.030005 -0.016293" rgba="1.0 0.85 0.0 1"/>
+      <geom name="body_front_visual" class="visual_geom" type="mesh" mesh="Body_front" pos="0 0 0" rgba="1.0 0.85 0.0 1"/>
+      <geom name="board_pcb_visual"  class="visual_geom" type="mesh" mesh="Board_PCB"  pos="0 0 0" rgba="0.15 0.15 0.15 1"/>
+      <geom name="shell_side_visual" class="visual_geom" type="mesh" mesh="Shell_Side" pos="0 0 0" rgba="1.0 0.85 0.0 1"/>
 
       <!-- Tracking camera -->
       <camera name="tracking_cam" mode="trackcom"
