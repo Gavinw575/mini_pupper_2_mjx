@@ -14,6 +14,16 @@
           solver="Newton" cone="pyramidal" jacobian="dense"/>
 
   <!-- ============================================================ -->
+  <!-- CUSTOM: MJX contact options                                   -->
+  <!-- Required by pupperv3_mjx utils.set_mjx_custom_options()      -->
+  <!-- Values overwritten at runtime by Colab config                 -->
+  <!-- ============================================================ -->
+  <custom>
+    <numeric name="max_contact_points" data="8"/>
+    <numeric name="max_geom_pairs" data="8"/>
+  </custom>
+
+  <!-- ============================================================ -->
   <!-- ASSETS                                                        -->
   <!-- ============================================================ -->
   <asset>
