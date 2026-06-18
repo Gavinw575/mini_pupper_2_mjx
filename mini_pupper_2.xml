@@ -3,7 +3,7 @@
   <!-- ============================================================ -->
   <!-- COMPILER                                                      -->
   <!-- ============================================================ -->
-  <compiler angle="radian" meshdir="meshes" autolimits="true"/>
+  <compiler angle="radian" meshdir="meshes" autolimits="true" balanceinertia="true"/>
 
   <!-- ============================================================ -->
   <!-- OPTIONS                                                       -->
@@ -45,7 +45,8 @@
     <mesh name="rffoot"     file="rffoot.stl"/>
     <mesh name="lbfoot"     file="lbfoot.stl"/>
     <mesh name="rbfoot"     file="rbfoot.stl"/>
-    <!-- Visual-only body meshes -->
+    <!-- Visual-only body meshes (plates/shells removed - purely decorative, -->
+    <!-- cause visual artifacts due to URDF fixed-joint offset complexity)   -->
     <mesh name="Body_front" file="Body_front.stl"/>
     <mesh name="Board_PCB"  file="Board_PCB.stl"/>
     <mesh name="Shell_Side" file="Shell_Side.stl"/>
@@ -57,7 +58,6 @@
     <mesh name="rpf2"       file="rpf2.stl"/>
     <mesh name="rpb1"       file="rpb1.stl"/>
     <mesh name="rpb2"       file="rpb2.stl"/>
-
     <!-- Floor texture -->
     <texture name="grid" type="2d" builtin="checker"
              rgb1="0.3 0.3 0.3" rgb2="0.4 0.4 0.4" width="512" height="512"/>
@@ -83,16 +83,17 @@
             solref="0.02 1" solimp="0.9 0.95 0.001"/>
     </default>
 
-    <!-- Collision capsules for leg links -->
+    <!-- Collision capsules for leg links - invisible (alpha=0) -->
     <default class="collision_geom">
       <geom condim="3" conaffinity="1" contype="1" group="0"
-            rgba="0.3 0.3 0.3 0.3"
+            rgba="0 0 0 0"
             friction="0.8 0.005 0.0001"/>
     </default>
 
-    <!-- Visual meshes: no collision -->
+    <!-- Visual meshes: no collision, no mass contribution -->
+    <!-- density="0" prevents MuJoCo auto-computing phantom mass from mesh volume -->
     <default class="visual_geom">
-      <geom conaffinity="0" contype="0" group="1"/>
+      <geom conaffinity="0" contype="0" group="1" density="0"/>
     </default>
 
     <!-- Actuators: position control, kp=5.5 -->
@@ -120,28 +121,29 @@
     <!-- Spawned 0.14m above floor. Foot hangs ~0.106+0.013=0.119m   -->
     <!-- below base_link origin, so 0.14m gives ~2cm ground clearance -->
     <!-- ============================================================ -->
-    <body name="base_link" pos="0 0 0.14" quat="1 0 0 0">
+    <body name="base_link" pos="0 0 0.095" quat="1 0 0 0">
       <freejoint name="root"/>
+
+      <!-- Inertial from URDF: base_link + base_inertia combined mass -->
+      <inertial mass="0.174884"
+                pos="-0.008867 0.000396 -0.007154"
+                fullinertia="0.00090939 0.00426716 0.00440707 1.27324e-7 1.05509e-9 -1.69927e-7"/>
 
       <site name="imu" size="0.01" pos="0 0 0"/>
 
       <!-- Torso collision: box approximation of body -->
       <geom name="base_collision" class="collision_geom"
             type="box" size="0.065 0.030 0.015"
-            pos="-0.008 0 0"/>
+            pos="-0.008 0 0" rgba="0 0 0 0"/>
 
       <!-- Visual meshes -->
-      <geom name="base_visual"       class="visual_geom" type="mesh" mesh="base_link"  rgba="0.15 0.15 0.15 1"/>
-      <geom name="body_front_visual" class="visual_geom" type="mesh" mesh="Body_front" pos="0 0 0" rgba="1.0 0.85 0.0 1"/>
-      <geom name="board_pcb_visual"  class="visual_geom" type="mesh" mesh="Board_PCB"  pos="0 0 0" rgba="0.15 0.15 0.15 1"/>
-      <geom name="shell_side_visual" class="visual_geom" type="mesh" mesh="Shell_Side" pos="0 0 0" rgba="1.0 0.85 0.0 1"/>
+      <!-- pos="0 0 0" because STL meshes are pre-offset in their own frame;  -->
+      <!-- the URDF joint+visual offsets cancel each other out exactly.        -->
+      <geom name="base_visual"       class="visual_geom" type="mesh" mesh="base_link"  pos="0 0 0" rgba="0.15 0.15 0.15 1"/>
 
       <!-- Tracking camera -->
       <camera name="tracking_cam" mode="trackcom"
               pos="0 -0.8 0.4" xyaxes="1 0 0 0 0.5 1"/>
-      <!-- Add inside base_link body -->
-      <camera name="front_cam" pos="0.5 0 0.2" xyaxes="-1 0 0 0 0 1"/>
-      <camera name="side_cam"  pos="0 0.5 0.2" xyaxes="0 1 0 0 0 1"/>
 
       <!-- ========================================================= -->
       <!-- RIGHT FRONT LEG (rf)                                       -->
@@ -149,23 +151,28 @@
       <!-- ========================================================= -->
       <body name="rf1" pos="0.05 -0.0235 0.0">
         <joint name="base_rf1" class="leg_joint" axis="1 0 0"/>
+        <inertial mass="0.020769" pos="0.020109 -0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="rf1_visual"    class="visual_geom"    type="mesh"    mesh="rf1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="rf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 -0.002 0"/>
 
-        <!-- Hip joint: xyz="-4e-05 -0.0197 0" axis=y -->
         <body name="rf2" pos="-4e-05 -0.0197 0.0">
           <joint name="rf1_rf2" class="leg_joint" axis="0 1 0"/>
+          <inertial mass="0.001906" pos="-0.003174 -0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 -3.117e-9 -17.662e-9 -79.269e-9"/>
           <geom name="rf2_visual"    class="visual_geom"    type="mesh"    mesh="rf2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="rf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 -0.005 -0.05"/>
 
-          <!-- Knee joint: xyz="0 -0.00475 -0.05" axis=y -->
           <body name="rf3" pos="0.0 -0.00475 -0.05">
             <joint name="rf2_rf3" class="leg_joint" axis="0 1 0"/>
+            <inertial mass="0.001144" pos="0.006211 -0.003456 -0.015014"
+                      fullinertia="0.484471e-6 0.567615e-6 91.813e-9 2.101e-9 -5.008e-9 0.20057e-6"/>
             <geom name="rf3_visual"    class="visual_geom"    type="mesh"    mesh="rf3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="rf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
-            <!-- Foot: xyz="0 0 -0.056" -->
             <body name="rffoot" pos="0.0 0.0 -0.056">
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
               <geom name="rffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
               <geom name="rffoot_visual" class="visual_geom" type="mesh" mesh="rffoot" rgba="0.1 0.1 0.1 1"/>
               <site name="rffoot_site"   size="0.01" pos="0 0 0"/>
@@ -180,23 +187,28 @@
       <!-- ========================================================= -->
       <body name="lf1" pos="0.05 0.0235 0.0">
         <joint name="base_lf1" class="leg_joint" axis="1 0 0"/>
+        <inertial mass="0.020769" pos="0.020109 0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 -7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="lf1_visual"    class="visual_geom"    type="mesh"    mesh="lf1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="lf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 0.002 0"/>
 
-        <!-- Hip joint: xyz="-4e-05 0.0197 0" axis=y -->
         <body name="lf2" pos="-4e-05 0.0197 0.0">
           <joint name="lf1_lf2" class="leg_joint" axis="0 1 0"/>
+          <inertial mass="0.001906" pos="-0.003174 0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 3.117e-9 17.662e-9 -79.269e-9"/>
           <geom name="lf2_visual"    class="visual_geom"    type="mesh"    mesh="lf2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="lf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 0.005 -0.05"/>
 
-          <!-- Knee joint: xyz="0 0.00475 -0.05" axis=y -->
           <body name="lf3" pos="0.0 0.00475 -0.05">
             <joint name="lf2_lf3" class="leg_joint" axis="0 1 0"/>
+            <inertial mass="0.001144" pos="0.006211 0.003456 -0.015014"
+                      fullinertia="0.484471e-6 0.567615e-6 91.813e-9 -2.101e-9 5.008e-9 0.20057e-6"/>
             <geom name="lf3_visual"    class="visual_geom"    type="mesh"    mesh="lf3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="lf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
-            <!-- Foot: xyz="0 0 -0.056" -->
             <body name="lffoot" pos="0.0 0.0 -0.056">
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
               <geom name="lffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
               <geom name="lffoot_visual" class="visual_geom" type="mesh" mesh="lffoot" rgba="0.1 0.1 0.1 1"/>
               <site name="lffoot_site"   size="0.01" pos="0 0 0"/>
@@ -211,23 +223,28 @@
       <!-- ========================================================= -->
       <body name="rb1" pos="-0.066 -0.0235 0.0">
         <joint name="base_rb1" class="leg_joint" axis="1 0 0"/>
+        <inertial mass="0.020769" pos="-0.020109 -0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 -7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="rb1_visual"    class="visual_geom"    type="mesh"    mesh="rb1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="rb1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  -0.04 -0.002 0"/>
 
-        <!-- Hip joint: xyz="-4e-05 -0.0197 0" axis=y -->
         <body name="rb2" pos="-4e-05 -0.0197 0.0">
           <joint name="rb1_rb2" class="leg_joint" axis="0 1 0"/>
+          <inertial mass="0.001906" pos="-0.003174 -0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 -3.117e-9 -17.662e-9 -79.269e-9"/>
           <geom name="rb2_visual"    class="visual_geom"    type="mesh"    mesh="rb2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="rb2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 -0.005 -0.05"/>
 
-          <!-- Knee joint: xyz="0 -0.00475 -0.05" axis=y -->
           <body name="rb3" pos="0.0 -0.00475 -0.05">
             <joint name="rb2_rb3" class="leg_joint" axis="0 1 0"/>
+            <inertial mass="0.001144" pos="0.006211 -0.003456 -0.015014"
+                      fullinertia="0.484816e-6 0.567883e-6 91.777e-9 2.212e-9 -5.34e-9 0.200564e-6"/>
             <geom name="rb3_visual"    class="visual_geom"    type="mesh"    mesh="rb3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="rb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
-            <!-- Foot: xyz="0 0 -0.056" -->
             <body name="rbfoot" pos="0.0 0.0 -0.056">
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
               <geom name="rbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
               <geom name="rbfoot_visual" class="visual_geom" type="mesh" mesh="rbfoot" rgba="0.1 0.1 0.1 1"/>
               <site name="rbfoot_site"   size="0.01" pos="0 0 0"/>
@@ -242,23 +259,28 @@
       <!-- ========================================================= -->
       <body name="lb1" pos="-0.066 0.0235 0.0">
         <joint name="base_lb1" class="leg_joint" axis="1 0 0"/>
+        <inertial mass="0.020769" pos="-0.020109 0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="lb1_visual"    class="visual_geom"    type="mesh"    mesh="lb1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="lb1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  -0.04 0.002 0"/>
 
-        <!-- Hip joint: xyz="-4e-05 0.0197 0" axis=y -->
         <body name="lb2" pos="-4e-05 0.0197 0.0">
           <joint name="lb1_lb2" class="leg_joint" axis="0 1 0"/>
+          <inertial mass="0.001906" pos="-0.003174 0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 3.117e-9 17.662e-9 -79.269e-9"/>
           <geom name="lb2_visual"    class="visual_geom"    type="mesh"    mesh="lb2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="lb2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 0.005 -0.05"/>
 
-          <!-- Knee joint: xyz="0 0.00475 -0.05" axis=y -->
           <body name="lb3" pos="0.0 0.00475 -0.05">
             <joint name="lb2_lb3" class="leg_joint" axis="0 1 0"/>
+            <inertial mass="0.001144" pos="0.006211 0.003456 -0.015014"
+                      fullinertia="0.484471e-6 0.567615e-6 91.813e-9 -2.101e-9 5.008e-9 0.20057e-6"/>
             <geom name="lb3_visual"    class="visual_geom"    type="mesh"    mesh="lb3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="lb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
-            <!-- Foot: xyz="0 0 -0.056" -->
             <body name="lbfoot" pos="0.0 0.0 -0.056">
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
               <geom name="lbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
               <geom name="lbfoot_visual" class="visual_geom" type="mesh" mesh="lbfoot" rgba="0.1 0.1 0.1 1"/>
               <site name="lbfoot_site"   size="0.01" pos="0 0 0"/>
@@ -276,15 +298,18 @@
   <!-- qpos layout: 7 free joint (pos+quat) + 12 joint angles       -->
   <!-- Joint order: RF(abd,hip,knee) LF(abd,hip,knee)               -->
   <!--              RB(abd,hip,knee) LB(abd,hip,knee)               -->
-  <!-- Values from URDF startup_abduction=0, hip=0.994, knee=-1.767 -->
+  <!-- Standing height 0.095m verified by FK: with hip=0.994,       -->
+  <!-- knee=-0.774, feet sit 0.082m below base_link origin.         -->
+  <!-- knee=-0.774 = real robot calibrated rest position             -->
+  <!-- (from mini_pupper_2_controllers.yaml IK output at z=-0.07)   -->
   <!-- ============================================================ -->
   <keyframe>
     <key name="home"
-         qpos="0 0 0.14 1 0 0 0
-               0.0  0.994 -1.767
-               0.0  0.994 -1.767
-               0.0  0.994 -1.767
-               0.0  0.994 -1.767"/>
+         qpos="0 0 0.095 1 0 0 0
+               0.0  0.994 -0.774
+               0.0  0.994 -0.774
+               0.0  0.994 -0.774
+               0.0  0.994 -0.774"/>
   </keyframe>
 
   <!-- ============================================================ -->
