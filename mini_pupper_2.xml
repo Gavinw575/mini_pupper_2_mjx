@@ -3,8 +3,9 @@
   <!-- ============================================================ -->
   <!-- COMPILER                                                      -->
   <!-- ============================================================ -->
-  <compiler angle="radian" meshdir="meshes" autolimits="true" balanceinertia="true" inertiafromgeom="false" fusefixed="false"/>
-
+  <!-- <compiler angle="radian" meshdir="meshes" autolimits="true" balanceinertia="true" inertiafromgeom="false" fusefixed="false"/> -->
+  <compiler angle="radian" meshdir="meshes" autolimits="true" balanceinertia="true" 
+          inertiafromgeom="false" fusestatic="false" discardvisual="false"/>
   <!-- ============================================================ -->
   <!-- OPTIONS                                                       -->
   <!-- MJX-compatible: pyramidal friction, Newton solver            -->
