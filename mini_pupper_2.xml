@@ -64,6 +64,9 @@
   <!-- kp=5.5, kd=0.25 matches Colab training_config defaults       -->
   <!-- ============================================================ -->
   <default>
+    <!-- Top-level joint default - ensures damping applies everywhere -->
+    <joint damping="0.25" armature="0.01" frictionloss="0.0"/>
+
     <!-- All joints: position-controlled servos -->
     <default class="leg_joint">
       <joint limited="true" range="-3.14 3.14"
@@ -145,17 +148,17 @@
       <!-- Abduction joint at xyz="0.05 -0.0235 0.0" axis=x          -->
       <!-- ========================================================= -->
       <body name="rf1" pos="0.05 -0.0235 0.0">
-        <joint name="base_rf1" class="leg_joint" axis="1 0 0"/>
+        <joint name="base_rf1" class="leg_joint" axis="1 0 0" damping="0.25"/>
         <geom name="rf1_visual"    class="visual_geom"    type="mesh"    mesh="rf1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="rf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 -0.002 0"/>
 
         <body name="rf2" pos="-4e-05 -0.0197 0.0">
-          <joint name="rf1_rf2" class="leg_joint" axis="0 1 0"/>
+          <joint name="rf1_rf2" class="leg_joint" axis="0 1 0" damping="0.25"/>
           <geom name="rf2_visual"    class="visual_geom"    type="mesh"    mesh="rf2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="rf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 -0.005 -0.05"/>
 
           <body name="rf3" pos="0.0 -0.00475 -0.05">
-            <joint name="rf2_rf3" class="leg_joint" axis="0 1 0"/>
+            <joint name="rf2_rf3" class="leg_joint" axis="0 1 0" damping="0.25"/>
             <geom name="rf3_visual"    class="visual_geom"    type="mesh"    mesh="rf3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="rf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
@@ -173,12 +176,12 @@
       <!-- Abduction joint at xyz="0.05 0.0235 0.0" axis=x           -->
       <!-- ========================================================= -->
       <body name="lf1" pos="0.05 0.0235 0.0">
-        <joint name="base_lf1" class="leg_joint" axis="1 0 0"/>
+        <joint name="base_lf1" class="leg_joint" axis="1 0 0" damping="0.25"/>
         <geom name="lf1_visual"    class="visual_geom"    type="mesh"    mesh="lf1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="lf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 0.002 0"/>
 
         <body name="lf2" pos="-4e-05 0.0197 0.0">
-          <joint name="lf1_lf2" class="leg_joint" axis="0 1 0"/>
+          <joint name="lf1_lf2" class="leg_joint" axis="0 1 0" damping="0.25"/>
           <geom name="lf2_visual"    class="visual_geom"    type="mesh"    mesh="lf2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="lf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 0.005 -0.05"/>
 
