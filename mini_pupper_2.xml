@@ -112,10 +112,10 @@
 
     <!-- ============================================================ -->
     <!-- BASE / TORSO                                                  -->
-    <!-- Spawned 0.14m above floor. Foot hangs ~0.106+0.013=0.119m   -->
-    <!-- below base_link origin, so 0.14m gives ~2cm ground clearance -->
+    <!-- Spawn height 0.057m: FK with hip=0.994, knee=-1.767 gives   -->
+    <!-- feet at 0.044m below base_link; + foot_radius 0.013m = 0.057-->
     <!-- ============================================================ -->
-    <body name="base_link" pos="0 0 0.095" quat="1 0 0 0">
+    <body name="base_link" pos="0 0 0.057" quat="1 0 0 0">
       <freejoint name="root"/>
 
       <!-- Inertial from URDF: base_link + base_inertia combined mass -->
@@ -261,18 +261,18 @@
   <!-- qpos layout: 7 free joint (pos+quat) + 12 joint angles       -->
   <!-- Joint order: RF(abd,hip,knee) LF(abd,hip,knee)               -->
   <!--              RB(abd,hip,knee) LB(abd,hip,knee)               -->
-  <!-- Standing height 0.095m verified by FK: with hip=0.994,       -->
-  <!-- knee=-0.774, feet sit 0.082m below base_link origin.         -->
-  <!-- knee=-0.774 = real robot calibrated rest position             -->
-  <!-- (from mini_pupper_2_controllers.yaml IK output at z=-0.07)   -->
+  <!-- Values from URDF: startup_abduction=0, hip=0.994, knee=-1.767-->
+  <!-- Spawn height 0.057m verified by FK: feet sit 0.044m below    -->
+  <!-- base_link at these angles, foot_radius=0.013m, so            -->
+  <!-- base_z = 0.044 + 0.013 = 0.057m puts feet exactly on floor  -->
   <!-- ============================================================ -->
   <keyframe>
     <key name="home"
-         qpos="0 0 0.095 1 0 0 0
-               0.0  0.994 -0.774
-               0.0  0.994 -0.774
-               0.0  0.994 -0.774
-               0.0  0.994 -0.774"/>
+         qpos="0 0 0.057 1 0 0 0
+               0.0  0.994 -1.767
+               0.0  0.994 -1.767
+               0.0  0.994 -1.767
+               0.0  0.994 -1.767"/>
   </keyframe>
 
   <!-- ============================================================ -->
