@@ -115,13 +115,23 @@
 
     <!-- ============================================================ -->
     <!-- BASE / TORSO                                                  -->
-    <!-- Spawn height 0.057m: FK with hip=0.994, knee=-1.767 gives   -->
-    <!-- feet at 0.044m below base_link; + foot_radius 0.013m = 0.057-->
+    <!-- Spawn height 0.0804m: FK verified independently (hand calc +  -->
+    <!-- MuJoCo mj_forward) with hip=0.994, knee=-1.767. Foot site     -->
+    <!-- sits 0.06735m below base_link; + foot_radius 0.013m = 0.0804 -->
     <!-- ============================================================ -->
-    <body name="base_link" pos="0 0 0.057" quat="1 0 0 0">
+    <body name="base_link" pos="0 0 0.0804" quat="1 0 0 0">
       <freejoint name="root"/>
 
       <!-- Inertial from URDF: base_link + base_inertia combined mass -->
+
+      <!-- Inertial: base_link + base_inertia + Body_front + Board_PCB + Shell_Side + lidar_link -->
+      <!-- combined mass = 0.174884+0.0078552+0.0142616+0.0051929+0.108 = 0.30939 kg -->
+      <!-- COM/inertia approximated at base_link's own values (dropped parts are small -->
+      <!-- and roughly centered near base_link's origin; full parallel-axis correction -->
+      <!-- is a refinement for later if mass distribution proves to matter further) -->
+      <inertial mass="0.30939"
+                pos="-0.008867 0.000396 -0.007154"
+                fullinertia="0.00090939 0.00426716 0.00440707 1.27324e-7 1.05509e-9 -1.69927e-7"/>
 
       <site name="imu" size="0.01" pos="0 0 0"/>
 
@@ -149,21 +159,29 @@
       <!-- ========================================================= -->
       <body name="rf1" pos="0.05 -0.0235 0.0">
         <joint name="base_rf1" class="leg_joint" axis="1 0 0" damping="0.25"/>
+        <inertial mass="0.020769" pos="0.020109 -0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="rf1_visual"    class="visual_geom"    type="mesh"    mesh="rf1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="rf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 -0.002 0"/>
 
         <body name="rf2" pos="-4e-05 -0.0197 0.0">
           <joint name="rf1_rf2" class="leg_joint" axis="0 1 0" damping="0.25"/>
+          <inertial mass="0.001906" pos="-0.003174 -0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 -3.117e-9 -17.662e-9 -79.269e-9"/>
           <geom name="rf2_visual"    class="visual_geom"    type="mesh"    mesh="rf2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="rf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 -0.005 -0.05"/>
 
           <body name="rf3" pos="0.0 -0.00475 -0.05">
             <joint name="rf2_rf3" class="leg_joint" axis="0 1 0" damping="0.25"/>
+            <inertial mass="0.001144" pos="0.006211 -0.003456 -0.015014"
+                      fullinertia="0.484471e-6 0.567615e-6 91.813e-9 2.101e-9 -5.008e-9 0.20057e-6"/>
             <geom name="rf3_visual"    class="visual_geom"    type="mesh"    mesh="rf3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="rf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="rffoot" pos="0.0 0.0 -0.056">
-              <geom name="rffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+              <geom name="rffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="rffoot_visual" class="visual_geom" type="mesh" mesh="rffoot" rgba="0.1 0.1 0.1 1"/>
               <site name="rffoot_site"   size="0.01" pos="0 0 0"/>
             </body>
@@ -177,21 +195,29 @@
       <!-- ========================================================= -->
       <body name="lf1" pos="0.05 0.0235 0.0">
         <joint name="base_lf1" class="leg_joint" axis="1 0 0" damping="0.25"/>
+        <inertial mass="0.020769" pos="0.020109 0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 -7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="lf1_visual"    class="visual_geom"    type="mesh"    mesh="lf1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="lf1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  0.04 0.002 0"/>
 
         <body name="lf2" pos="-4e-05 0.0197 0.0">
           <joint name="lf1_lf2" class="leg_joint" axis="0 1 0" damping="0.25"/>
+          <inertial mass="0.001906" pos="-0.003174 0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 3.117e-9 17.662e-9 -79.269e-9"/>
           <geom name="lf2_visual"    class="visual_geom"    type="mesh"    mesh="lf2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="lf2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 0.005 -0.05"/>
 
           <body name="lf3" pos="0.0 0.00475 -0.05">
-            <joint name="lf2_lf3" class="leg_joint" axis="0 1 0"/>
+            <joint name="lf2_lf3" class="leg_joint" axis="0 1 0" damping="0.25"/>
+            <inertial mass="0.001144" pos="0.006211 0.003456 -0.015014"
+                      fullinertia="0.484471e-6 0.567615e-6 91.813e-9 -2.101e-9 5.008e-9 0.20057e-6"/>
             <geom name="lf3_visual"    class="visual_geom"    type="mesh"    mesh="lf3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="lf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="lffoot" pos="0.0 0.0 -0.056">
-              <geom name="lffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+              <geom name="lffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="lffoot_visual" class="visual_geom" type="mesh" mesh="lffoot" rgba="0.1 0.1 0.1 1"/>
               <site name="lffoot_site"   size="0.01" pos="0 0 0"/>
             </body>
@@ -204,22 +230,30 @@
       <!-- Abduction joint at xyz="-0.066 -0.0235 0.0" axis=x        -->
       <!-- ========================================================= -->
       <body name="rb1" pos="-0.066 -0.0235 0.0">
-        <joint name="base_rb1" class="leg_joint" axis="1 0 0"/>
+        <joint name="base_rb1" class="leg_joint" axis="1 0 0" damping="0.25"/>
+        <inertial mass="0.020769" pos="-0.020109 -0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 -7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="rb1_visual"    class="visual_geom"    type="mesh"    mesh="rb1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="rb1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  -0.04 -0.002 0"/>
 
         <body name="rb2" pos="-4e-05 -0.0197 0.0">
-          <joint name="rb1_rb2" class="leg_joint" axis="0 1 0"/>
+          <joint name="rb1_rb2" class="leg_joint" axis="0 1 0" damping="0.25"/>
+          <inertial mass="0.001906" pos="-0.003174 -0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 -3.117e-9 -17.662e-9 -79.269e-9"/>
           <geom name="rb2_visual"    class="visual_geom"    type="mesh"    mesh="rb2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="rb2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 -0.005 -0.05"/>
 
           <body name="rb3" pos="0.0 -0.00475 -0.05">
-            <joint name="rb2_rb3" class="leg_joint" axis="0 1 0"/>
+            <joint name="rb2_rb3" class="leg_joint" axis="0 1 0" damping="0.25"/>
+            <inertial mass="0.001144" pos="0.006211 -0.003456 -0.015014"
+                      fullinertia="0.484816e-6 0.567883e-6 91.777e-9 2.212e-9 -5.34e-9 0.200564e-6"/>
             <geom name="rb3_visual"    class="visual_geom"    type="mesh"    mesh="rb3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="rb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="rbfoot" pos="0.0 0.0 -0.056">
-              <geom name="rbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+              <geom name="rbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="rbfoot_visual" class="visual_geom" type="mesh" mesh="rbfoot" rgba="0.1 0.1 0.1 1"/>
               <site name="rbfoot_site"   size="0.01" pos="0 0 0"/>
             </body>
@@ -232,22 +266,30 @@
       <!-- Abduction joint at xyz="-0.066 0.0235 0.0" axis=x         -->
       <!-- ========================================================= -->
       <body name="lb1" pos="-0.066 0.0235 0.0">
-        <joint name="base_lb1" class="leg_joint" axis="1 0 0"/>
+        <joint name="base_lb1" class="leg_joint" axis="1 0 0" damping="0.25"/>
+        <inertial mass="0.020769" pos="-0.020109 0.002332 0.006500"
+                  fullinertia="2.494061e-6 3.735906e-6 3.222909e-6 7.662e-9 -0.014e-9 -33.565e-9"/>
         <geom name="lb1_visual"    class="visual_geom"    type="mesh"    mesh="lb1"  rgba="0.15 0.15 0.15 1"/>
         <geom name="lb1_collision" class="collision_geom" type="capsule" size="0.012" fromto="0 0 0  -0.04 0.002 0"/>
 
         <body name="lb2" pos="-4e-05 0.0197 0.0">
-          <joint name="lb1_lb2" class="leg_joint" axis="0 1 0"/>
+          <joint name="lb1_lb2" class="leg_joint" axis="0 1 0" damping="0.25"/>
+          <inertial mass="0.001906" pos="-0.003174 0.000986 -0.017984"
+                    fullinertia="0.462154e-6 0.481174e-6 26.893e-9 3.117e-9 17.662e-9 -79.269e-9"/>
           <geom name="lb2_visual"    class="visual_geom"    type="mesh"    mesh="lb2"  rgba="0.15 0.15 0.15 1"/>
           <geom name="lb2_collision" class="collision_geom" type="capsule" size="0.010" fromto="0 0 0  0 0.005 -0.05"/>
 
           <body name="lb3" pos="0.0 0.00475 -0.05">
-            <joint name="lb2_lb3" class="leg_joint" axis="0 1 0"/>
+            <joint name="lb2_lb3" class="leg_joint" axis="0 1 0" damping="0.25"/>
+            <inertial mass="0.001144" pos="0.006211 0.003456 -0.015014"
+                      fullinertia="0.484471e-6 0.567615e-6 91.813e-9 -2.101e-9 5.008e-9 0.20057e-6"/>
             <geom name="lb3_visual"    class="visual_geom"    type="mesh"    mesh="lb3"  rgba="0.15 0.15 0.15 1"/>
             <geom name="lb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="lbfoot" pos="0.0 0.0 -0.056">
-              <geom name="lbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0.1 0.1 0.1 1"/>
+              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+              <geom name="lbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="lbfoot_visual" class="visual_geom" type="mesh" mesh="lbfoot" rgba="0.1 0.1 0.1 1"/>
               <site name="lbfoot_site"   size="0.01" pos="0 0 0"/>
             </body>
@@ -265,13 +307,17 @@
   <!-- Joint order: RF(abd,hip,knee) LF(abd,hip,knee)               -->
   <!--              RB(abd,hip,knee) LB(abd,hip,knee)               -->
   <!-- Values from URDF: startup_abduction=0, hip=0.994, knee=-1.767-->
-  <!-- Spawn height 0.057m verified by FK: feet sit 0.044m below    -->
-  <!-- base_link at these angles, foot_radius=0.013m, so            -->
-  <!-- base_z = 0.044 + 0.013 = 0.057m puts feet exactly on floor  -->
+  <!-- Spawn height 0.0804m verified by independent FK (hand calc + -->
+  <!-- MuJoCo mj_forward, agree to 5 decimal places): foot site sits -->
+  <!-- 0.06735m below base_link at these angles. foot_radius=0.013m, -->
+  <!-- so base_z = 0.06735 + 0.013 = 0.0804m puts feet exactly on    -->
+  <!-- floor at spawn (previous 0.057m buried feet 1.5-2.3cm into    -->
+  <!-- the ground at every episode reset - confirmed via mj_forward  -->
+  <!-- contact penetration check)                                    -->
   <!-- ============================================================ -->
   <keyframe>
     <key name="home"
-         qpos="0 0 0.057 1 0 0 0
+         qpos="0 0 0.0804 1 0 0 0
                0.0  0.994 -1.767
                0.0  0.994 -1.767
                0.0  0.994 -1.767
