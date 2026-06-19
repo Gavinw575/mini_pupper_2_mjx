@@ -179,8 +179,8 @@
             <geom name="rf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="rffoot" pos="0.0 0.0 -0.056">
-              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
-                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+            <!--  <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                       fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/> -->
               <geom name="rffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="rffoot_visual" class="visual_geom" type="mesh" mesh="rffoot" rgba="0.1 0.1 0.1 1"/>
               <site name="rffoot_site"   size="0.01" pos="0 0 0"/>
@@ -215,8 +215,8 @@
             <geom name="lf3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="lffoot" pos="0.0 0.0 -0.056">
-              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
-                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+            <!--   <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/> -->
               <geom name="lffoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="lffoot_visual" class="visual_geom" type="mesh" mesh="lffoot" rgba="0.1 0.1 0.1 1"/>
               <site name="lffoot_site"   size="0.01" pos="0 0 0"/>
@@ -251,8 +251,8 @@
             <geom name="rb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="rbfoot" pos="0.0 0.0 -0.056">
-              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
-                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+           <!--    <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/> -->
               <geom name="rbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="rbfoot_visual" class="visual_geom" type="mesh" mesh="rbfoot" rgba="0.1 0.1 0.1 1"/>
               <site name="rbfoot_site"   size="0.01" pos="0 0 0"/>
@@ -287,8 +287,8 @@
             <geom name="lb3_collision" class="collision_geom" type="capsule" size="0.009" fromto="0 0 0  0 0 -0.05"/>
 
             <body name="lbfoot" pos="0.0 0.0 -0.056">
-              <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
-                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/>
+           <!--    <inertial mass="0.001405" pos="-0.014 0.00025 0.002488"
+                        fullinertia="41.995e-9 62.40e-9 29.798e-9 0 0 1.616e-9"/> -->
               <geom name="lbfoot_geom"   class="foot_geom"   pos="0 0 0" rgba="0 0 0 0"/>
               <geom name="lbfoot_visual" class="visual_geom" type="mesh" mesh="lbfoot" rgba="0.1 0.1 0.1 1"/>
               <site name="lbfoot_site"   size="0.01" pos="0 0 0"/>
